@@ -1,6 +1,7 @@
 const dotenv = require("dotenv");
 const express = require("express");
 const { neon } = require("@neondatabase/serverless");
+const { randomUUID } = require("crypto");
 const app = express();
 const port = 3000;
 
@@ -78,13 +79,14 @@ app.post("/add-url", async (req, res) => {
                 .json({ error: "Missing user_id or url in request body." });
         }
 
+        const id = randomUUID();
         const safeTitle = title || "Untitled";
         const watchStatus = typeof is_watch === "boolean" ? is_watch : false;
         const safeThumbnailUrl = thumbnail_url || null;
 
         const [addedUrl] = await sql`
-            INSERT INTO urls (user_id, url, title, is_watched, thumbnail_url)
-            VALUES (${user_id}, ${url}, ${safeTitle}, ${watchStatus}, ${safeThumbnailUrl})
+            INSERT INTO urls ( user_id, url, title, is_watch, thumbnail_url, id)
+            VALUES (${user_id}, ${url}, ${safeTitle}, ${watchStatus}, ${safeThumbnailUrl}, ${id})
             RETURNING *;
         `;
 
