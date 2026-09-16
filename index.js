@@ -70,18 +70,29 @@ app.get("/register", async (req, res) => {
 
 app.post("/add-url", async (req, res) => {
     try {
-        const { user_id, url } = req.body;
+        const { user_id, url, title, is_watch, thumbnail_url } = req.body;
+
         if (!user_id || !url) {
             return res
                 .status(400)
-                .json({ error: "Missing user_id or url query parameter." });
+                .json({ error: "Missing user_id or url in request body." });
         }
-        const [addedUrl] =
-            await sql`INSERT INTO urls (user_id, url) VALUES (${user_id}, ${url}) RETURNING *;`;
+
+        const safeTitle = title || "Untitled";
+        const watchStatus = typeof is_watch === "boolean" ? is_watch : false;
+        const safeThumbnailUrl = thumbnail_url || null;
+
+        const [addedUrl] = await sql`
+            INSERT INTO urls (user_id, url, title, is_watch, thumbnail_url)
+            VALUES (${user_id}, ${url}, ${safeTitle}, ${watchStatus}, ${safeThumbnailUrl})
+            RETURNING *;
+        `;
+
         if (!addedUrl) {
             return res.status(500).json({ error: "Failed to add URL." });
         }
-        res.json(addedUrl);
+
+        res.status(201).json(addedUrl);
     } catch (error) {
         console.error("Database query failed:", error);
         res.status(500).json({ error: "Failed to connect to the database." });
