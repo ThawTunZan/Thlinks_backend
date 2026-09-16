@@ -83,7 +83,7 @@ app.post("/add-url", async (req, res) => {
         const safeThumbnailUrl = thumbnail_url || null;
 
         const [addedUrl] = await sql`
-            INSERT INTO urls (user_id, url, title, is_watch, thumbnail_url)
+            INSERT INTO urls (user_id, url, title, is_watched, thumbnail_url)
             VALUES (${user_id}, ${url}, ${safeTitle}, ${watchStatus}, ${safeThumbnailUrl})
             RETURNING *;
         `;
