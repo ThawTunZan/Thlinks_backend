@@ -48,3 +48,4 @@ db-data/
 # Optional: temporary files
 tmp/
 temp/
+.neon
